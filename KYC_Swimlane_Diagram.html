@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KYC Onboarding — Swimlane Diagram</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0B1F3A;
+    --blue:    #1A4A7A;
+    --midblue: #2563A8;
+    --lblue:   #D6E8FA;
+    --green:   #0D6B3B;
+    --lgreen:  #D1FAE5;
+    --red:     #B91C1C;
+    --lred:    #FEE2E2;
+    --amber:   #92400E;
+    --lamber:  #FEF3C7;
+    --grey:    #F1F5F9;
+    --dgrey:   #64748B;
+    --white:   #FFFFFF;
+    --border:  #CBD5E1;
+    --shadow:  0 2px 12px rgba(11,31,58,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #EEF2F7;
+    color: var(--navy);
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+
+  /* ── Page Header ── */
+  .page-header {
+    background: var(--navy);
+    border-radius: 12px;
+    padding: 28px 36px;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+  }
+  .page-header h1 { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .page-header p  { color: #94A3B8; font-size: 13px; margin-top: 4px; }
+  .badge {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  /* ── Tab Switcher ── */
+  .tabs {
+    display: flex; gap: 8px; margin-bottom: 20px;
+  }
+  .tab {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab.asis   { background: var(--lred);   color: var(--red);   border-color: #FCA5A5; }
+  .tab.tobe   { background: var(--lgreen); color: var(--green); border-color: #6EE7B7; }
+  .tab.active { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .tab.asis.active  { background: var(--red);   color: #fff; border-color: var(--red); }
+  .tab.tobe.active  { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    background: #fff; border-radius: 10px;
+    padding: 14px 20px; margin-bottom: 20px;
+    border: 1px solid var(--border);
+    align-items: center;
+  }
+  .legend-title { font-size: 12px; font-weight: 600; color: var(--dgrey); margin-right: 4px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+  .legend-box {
+    width: 28px; height: 18px; border-radius: 4px;
+    border: 1.5px solid rgba(0,0,0,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+
+  /* ── Swimlane Container ── */
+  .swimlane-wrap {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  /* ── Lane ── */
+  .lane {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    min-height: 90px;
+    align-items: stretch;
+  }
+  .lane:last-child { border-bottom: none; }
+
+  .lane-label {
+    width: 140px; min-width: 140px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 12px 10px;
+    text-align: center;
+    border-right: 2px solid var(--border);
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .lane-icon { font-size: 22px; }
+  .lane-name { font-size: 11px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; color: var(--navy); line-height: 1.3; }
+
+  /* lane colours */
+  .lane-customer  .lane-label { background: #EFF6FF; }
+  .lane-ops       .lane-label { background: #F0FDF4; }
+  .lane-verify    .lane-label { background: #FFF7ED; }
+  .lane-risk      .lane-label { background: #FDF4FF; }
+  .lane-system    .lane-label { background: #F8FAFC; }
+
+  /* ── Steps Flow ── */
+  .lane-steps {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    gap: 0;
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  /* ── Step Box ── */
+  .step {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-width: 88px; max-width: 110px;
+    padding: 10px 10px 8px;
+    border-radius: 8px;
+    border: 2px solid;
+    text-align: center;
+    position: relative;
+    cursor: default;
+    transition: transform 0.15s, box-shadow 0.15s;
+    flex-shrink: 0;
+  }
+  .step:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    margin-bottom: 4px;
+    opacity: 0.7;
+  }
+  .step-name {
+    font-size: 11px; font-weight: 600;
+    line-height: 1.3;
+  }
+  .step-time {
+    margin-top: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+  .step-tag {
+    margin-top: 3px;
+    font-size: 9px; font-weight: 600;
+    padding: 1px 5px; border-radius: 3px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+
+  /* step colour variants */
+  .step-normal   { background:#EFF6FF; border-color:#BFDBFE; color: #1D4ED8; }
+  .step-normal .step-time { background:#DBEAFE; color:#1D4ED8; }
+  .step-system   { background:#F0FDF4; border-color:#BBF7D0; color: #15803D; }
+  .step-system .step-time { background:#DCFCE7; color:#15803D; }
+  .step-bottleneck { background:#FEE2E2; border-color:#FCA5A5; color:#B91C1C; }
+  .step-bottleneck .step-time { background:#FECACA; color:#B91C1C; }
+  .step-watch    { background:#FEF3C7; border-color:#FCD34D; color: #92400E; }
+  .step-watch .step-time { background:#FDE68A; color:#92400E; }
+  .step-improved { background:#D1FAE5; border-color:#6EE7B7; color:#065F46; }
+  .step-improved .step-time { background:#A7F3D0; color:#065F46; }
+  .step-parallel { background:#EDE9FE; border-color:#C4B5FD; color:#5B21B6; }
+  .step-parallel .step-time { background:#DDD6FE; color:#5B21B6; }
+
+  /* ── Arrow ── */
+  .arrow {
+    display: flex; align-items: center;
+    padding: 0 4px; color: var(--dgrey);
+    font-size: 16px; flex-shrink: 0;
+  }
+  .arrow-down {
+    display: flex; justify-content: center;
+    color: var(--dgrey); font-size: 18px;
+    padding: 4px 0; width: 100%;
+  }
+  .handoff-arrow {
+    color: var(--red); font-size: 20px;
+    padding: 0 2px;
+    font-weight: bold;
+  }
+
+  /* ── Parallel block ── */
+  .parallel-block {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    padding: 4px 0;
+  }
+  .parallel-label {
+    font-size: 9px; color: #5B21B6; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    background: #EDE9FE; padding: 2px 8px; border-radius: 10px;
+  }
+  .parallel-steps {
+    display: flex; gap: 6px; align-items: center;
+  }
+
+  /* ── Improvement Badge (ToBe only) ── */
+  .improve-badge {
+    position: absolute;
+    top: -10px; right: -6px;
+    background: var(--green); color: #fff;
+    font-size: 8px; font-weight: 700;
+    padding: 2px 5px; border-radius: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── Summary Bar ── */
+  .summary-bar {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    padding: 20px 24px;
+    background: var(--navy);
+    border-radius: 0 0 12px 12px;
+  }
+  .kpi-card {
+    flex: 1; min-width: 130px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+  }
+  .kpi-label { font-size: 11px; color: #94A3B8; font-weight: 500; margin-bottom: 4px; }
+  .kpi-value { font-size: 22px; font-weight: 700; color: #fff; font-family: 'DM Mono', monospace; }
+  .kpi-sub   { font-size: 10px; color: #64748B; margin-top: 2px; }
+  .kpi-card.highlight .kpi-value { color: #F87171; }
+  .kpi-card.good      .kpi-value { color: #34D399; }
+
+  /* ── Impact Table ── */
+  .impact-section { margin-top: 24px; }
+  .impact-section h2 {
+    font-size: 15px; font-weight: 700; margin-bottom: 12px;
+    color: var(--navy); display: flex; align-items: center; gap: 8px;
+  }
+  .impact-table {
+    width: 100%; border-collapse: collapse;
+    background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .impact-table th {
+    background: var(--navy); color: #fff;
+    padding: 11px 16px; text-align: left; font-weight: 600; font-size: 12px;
+  }
+  .impact-table td {
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+  }
+  .impact-table tr:last-child td { border-bottom: none; }
+  .impact-table tr:nth-child(even) td { background: var(--grey); }
+  .bad  { color: var(--red);   font-weight: 700; }
+  .good { color: var(--green); font-weight: 700; }
+  .imp  { color: var(--midblue); font-weight: 600; }
+
+  .diagram-view { display: none; }
+  .diagram-view.active { display: block; }
+
+  @media (max-width: 768px) {
+    .lane-label { width: 80px; min-width: 80px; }
+    .step { min-width: 72px; }
+    .page-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>KYC Retail Onboarding — Swimlane Process Diagram</h1>
+    <p>Maker–Checker Framework | 12-Step Process | As-Is vs To-Be Comparison</p>
+  </div>
+  <div class="badge">Process Re-Engineering</div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab asis active" onclick="showDiagram('asis')">🔴 As-Is Process (Current State)</div>
+  <div class="tab tobe"        onclick="showDiagram('tobe')">🟢 To-Be Process (Optimised)</div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <span class="legend-title">KEY:</span>
+  <div class="legend-item"><div class="legend-box" style="background:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8">●</div> Manual – Ops</div>
+  <div class="legend-item"><div class="legend-box" style="background:#F0FDF4;border-color:#BBF7D0;color:#15803D">⚙</div> Automated / API</div>
+  <div class="legend-item"><div class="legend-box" style="background:#FEE2E2;border-color:#FCA5A5;color:#B91C1C">🔴</div> Bottleneck</div>
+  <div class="legend-item"><div class="legend-box" style="background:#FEF3C7;border-color:#FCD34D;color:#92400E">⚠</div> Watch / Queue Risk</div>
+  <div class="legend-item"><div class="legend-box" style="background:#D1FAE5;border-color:#6EE7B7;color:#065F46">✅</div> Improved (To-Be)</div>
+  <div class="legend-item"><div class="legend-box" style="background:#EDE9FE;border-color:#C4B5FD;color:#5B21B6">∥</div> Parallel (To-Be)</div>
+  <div class="legend-item" style="margin-left:8px"><span style="color:var(--red);font-weight:700;font-size:16px">⇩</span> <span>Handoff / Queue</span></div>
+</div>
+
+<!-- ═══════════════════ AS-IS DIAGRAM ═══════════════════ -->
+<div id="asis-view" class="diagram-view active">
+  <div class="swimlane-wrap">
+
+    <!-- CUSTOMER -->
+    <div class="lane lane-customer">
+      <div class="lane-label">
+        <div class="lane-icon">👤</div>
+        <div class="lane-name">Customer</div>
+      </div>
+      <div class="lane-steps">
+        <div class="step step-normal">
+          <div class="step-num">01</div>
+          <div class="step-name">Submit Application</div>
+          <div class="step-time">—</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step step-normal">
+          <div class="step-num">02</div>
+          <div class="step-name">Document Upload</div>
+          <div class="step-time">3 min</div>
+        </div>
+        <div style="padding:0 12px;color:var(--dgrey);font-size:12px;font-style:italic">
+          PAN • Aadhaar • Address Proof • Photo • Form
+        </div>
+      </div>
+    </div>
+
+    <!-- OPS ANALYST -->
+    <div class="lane lane-ops">
+      <div class="lane-label">
+        <div class="lane-icon">🧑‍💼</div>
+        <div class="lane-name">Ops Analyst (Maker)</div>
+      </div>
+      <div class="lane-steps">
+        <div class="step step-normal">
+          <div class="step-num">03</div>
+          <div class="step-name">Doc Quality Check</div>
+          <div class="step-time">4 min</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step step-watch">
+          <div class="step-num">04</div>
+          <div class="step-name">Data Entry</div>
+          <div class="step-time">6 min</div>
+          <div class="step-tag" style="background:#FCD34D;color:#92400E">Manual</div>
+        </div>
+        <div class="arrow handoff-arrow">⇩</div>
+        <div class="step step-normal" style="margin-left:auto">
+          <div class="step-num">10</div>
+          <div class="step-name">Maker Review</div>
+          <div class="step-time">6 min</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step step-normal">
+          <div class="step-num">11</div>
+          <div class="step-name">Checker Approval</div>
+          <div class="step-time">5 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VERIFICATION -->
+    <div class="lane lane-verify">
+      <div class="lane-label">
+        <div class="lane-icon">🔍</div>
+        <div class="lane-name">Verification Team</div>
+      </div>
+      <div class="lane-steps">
+        <div class="step step-system">
+          <div class="step-num">05</div>
+          <div class="step-name">PAN Validation</div>
+          <div class="step-time">5 min</div>
+          <div class="step-tag" style="background:#DCFCE7;color:#15803D">API</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step step-system">
+          <div class="step-num">06</div>
+          <div class="step-name">Aadhaar Validation</div>
+          <div class="step-time">5 min</div>
+          <div class="step-tag" style="background:#DCFCE7;color:#15803D">API</div>
+        </div>
+        <div class="arrow handoff-arrow" style="font-size:14px;padding:0 6px">serial →</div>
+        <div class="step step-bottleneck">
+          <div class="step-num">08</div>
+          <div class="step-name">Address Verification</div>
+          <div class="step-time">10 min</div>
+          <div class="step-tag" style="background:#FECACA;color:#B91C1C">🔴 BOTTLENECK</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RISK / COMPLIANCE -->
+    <div class="lane lane-risk">
+      <div class="lane-label">
+        <div class="lane-icon">⚖️</div>
+        <div class="lane-name">Risk / Compliance</div>
+      </div>
+      <div class="lane-steps">
+        <div class="step step-watch">
+          <div class="step-num">07</div>
+          <div class="step-name">AML / Name Screening</div>
+          <div class="step-time">8 min</div>
+          <div class="step-tag" style="background:#FDE68A;color:#92400E">⚠ Queue</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step step-normal">
+          <div class="step-num">09</div>
+          <div class="step-name">Risk Categorisation</div>
+          <div class="step-time">4 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYSTEM -->
+    <div class="lane lane-system">
+      <div class="lane-label">
+        <div class="lane-icon">💻</div>
+        <div class="lane-name">System / Core Banking</div>
+      </div>
+      <div class="lane-steps">
+        <div style="padding:0 20px;color:var(--dgrey);font-size:12px;font-style:italic;flex:1">
+          API calls triggered by Ops (PAN/Aadhaar) — results feed back to Verification lane
+        </div>
+        <div class="step step-system">
+          <div class="step-num">12</div>
+          <div class="step-name">Account Activation</div>
+          <div class="step-time">2 min</div>
+          <div class="step-tag" style="background:#DCFCE7;color:#15803D">Auto</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary bar AS-IS -->
+    <div class="summary-bar">
+      <div class="kpi-card highlight">
+        <div class="kpi-label">Touch Time</div>
+        <div class="kpi-value">53 min</div>
+        <div class="kpi-sub">per case</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">End-to-End TAT</div>
+        <div class="kpi-value">90 min</div>
+        <div class="kpi-sub">incl. queues</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">FTE Utilisation</div>
+        <div class="kpi-value">108%</div>
+        <div class="kpi-sub">⚠ Overloaded</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">Daily Backlog</div>
+        <div class="kpi-value">38–80</div>
+        <div class="kpi-sub">cases/day</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">SLA Risk</div>
+        <div class="kpi-value" style="font-size:16px">🔴 HIGH</div>
+        <div class="kpi-sub">Breach likely</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">Bottleneck</div>
+        <div class="kpi-value" style="font-size:14px">Addr. Verify</div>
+        <div class="kpi-sub">10 min — manual</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TO-BE DIAGRAM ═══════════════════ -->
+<div id="tobe-view" class="diagram-view">
+  <div class="swimlane-wrap">
+
+    <!-- CUSTOMER -->
+    <div class="lane lane-customer">
+      <div class="lane-label">
+        <div class="lane-icon">👤</div>
+        <div class="lane-name">Customer</div>
+      </div>
+      <div class="lane-steps">
+        <div class="step step-normal">
+          <div class="step-num">01</div>
+          <div class="step-name">Submit Application</div>
+          <div class="step-time">—</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step step-normal">
+          <div class="step-num">02</div>
+          <div class="step-name">Document Upload</div>
+          <div class="step-time">3 min</div>
+        </div>
+        <div style="padding:0 12px;color:var(--dgrey);font-size:12px;font-style:italic">
+          PAN • Aadhaar • Address Proof • Photo • Form
+        </div>
+      </div>
+    </div>
+
+    <!-- OPS ANALYST -->
+    <div class="lane lane-ops">
+      <div class="lane-label">
+        <div class="lane-icon">🧑‍💼</div>
+        <div class="lane-name">Ops Analyst (Maker)</div>
+      </div>
+      <div class="lane-steps">
+        <div class="step step-normal">
+          <div class="step-num">03</div>
+          <div class="step-name">Doc Quality Check</div>
+          <div class="step-time">4 min</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step step-improved" style="position:relative">
+          <div class="improve-badge">✅ OCR</div>
+          <div class="step-num">04</div>
+          <div class="step-name">Data Entry</div>
+          <div class="step-time">4 min</div>
+          <div class="step-tag" style="background:#A7F3D0;color:#065F46">−2 min</div>
+        </div>
+        <div class="arrow handoff-arrow">⇩</div>
+        <div class="step step-normal" style="margin-left:auto">
+          <div class="step-num">09</div>
+          <div class="step-name">Maker Review</div>
+          <div class="step-time">6 min</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step step-normal">
+          <div class="step-num">10</div>
+          <div class="step-name">Checker Approval</div>
+          <div class="step-time">5 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VERIFICATION -->
+    <div class="lane lane-verify">
+      <div class="lane-label">
+        <div class="lane-icon">🔍</div>
+        <div class="lane-name">Verification Team</div>
+      </div>
+      <div class="lane-steps">
+        <!-- Parallel block -->
+        <div class="parallel-block">
+          <div class="parallel-label">∥ Runs in Parallel</div>
+          <div class="parallel-steps">
+            <div class="step step-parallel" style="position:relative">
+              <div class="improve-badge" style="background:#5B21B6">∥ New</div>
+              <div class="step-num">05</div>
+              <div class="step-name">PAN Validation</div>
+              <div class="step-time">5 min</div>
+            </div>
+            <div style="font-size:12px;color:#5B21B6;font-weight:700;padding:0 4px">+</div>
+            <div class="step step-parallel" style="position:relative">
+              <div class="improve-badge" style="background:#5B21B6">∥ New</div>
+              <div class="step-num">06</div>
+              <div class="step-name">Aadhaar Validation</div>
+              <div class="step-time">5 min</div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow" style="padding:0 10px">→</div>
+        <div class="step step-improved" style="position:relative">
+          <div class="improve-badge">✅ API</div>
+          <div class="step-num">07</div>
+          <div class="step-name">Address Verification</div>
+          <div class="step-time">6 min</div>
+          <div class="step-tag" style="background:#A7F3D0;color:#065F46">−4 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RISK / COMPLIANCE -->
+    <div class="lane lane-risk">
+      <div class="lane-label">
+        <div class="lane-icon">⚖️</div>
+        <div class="lane-name">Risk / Compliance</div>
+      </div>
+      <div class="lane-steps">
+        <div class="step step-improved" style="position:relative">
+          <div class="improve-badge">✅ Filter</div>
+          <div class="step-num">08</div>
+          <div class="step-name">AML / Name Screening</div>
+          <div class="step-time">7 min</div>
+          <div class="step-tag" style="background:#A7F3D0;color:#065F46">−1 min</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step step-normal">
+          <div class="step-num">09</div>
+          <div class="step-name">Risk Categorisation</div>
+          <div class="step-time">4 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYSTEM -->
+    <div class="lane lane-system">
+      <div class="lane-label">
+        <div class="lane-icon">💻</div>
+        <div class="lane-name">System / Core Banking</div>
+      </div>
+      <div class="lane-steps">
+        <div style="padding:0 20px;color:var(--dgrey);font-size:12px;font-style:italic;flex:1">
+          OCR engine reads docs automatically | PAN + Aadhaar APIs called simultaneously | Address API replaces manual lookup
+        </div>
+        <div class="step step-system">
+          <div class="step-num">11</div>
+          <div class="step-name">Account Activation</div>
+          <div class="step-time">2 min</div>
+          <div class="step-tag" style="background:#DCFCE7;color:#15803D">Auto</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary bar TO-BE -->
+    <div class="summary-bar">
+      <div class="kpi-card good">
+        <div class="kpi-label">Touch Time</div>
+        <div class="kpi-value">45 min</div>
+        <div class="kpi-sub">−15% vs As-Is</div>
+      </div>
+      <div class="kpi-card good">
+        <div class="kpi-label">End-to-End TAT</div>
+        <div class="kpi-value">75 min</div>
+        <div class="kpi-sub">−16.7% vs As-Is</div>
+      </div>
+      <div class="kpi-card good">
+        <div class="kpi-label">FTE Utilisation</div>
+        <div class="kpi-value">~92%</div>
+        <div class="kpi-sub">✅ Healthy</div>
+      </div>
+      <div class="kpi-card good">
+        <div class="kpi-label">Daily Backlog</div>
+        <div class="kpi-value">Zero</div>
+        <div class="kpi-sub">Eliminated</div>
+      </div>
+      <div class="kpi-card good">
+        <div class="kpi-label">SLA Risk</div>
+        <div class="kpi-value" style="font-size:16px">🟢 LOW</div>
+        <div class="kpi-sub">Stabilised</div>
+      </div>
+      <div class="kpi-card good">
+        <div class="kpi-label">Capacity Created</div>
+        <div class="kpi-value">10 FTE</div>
+        <div class="kpi-sub">Redeployable</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Impact Table ═══ -->
+<div class="impact-section">
+  <h2>📊 As-Is vs To-Be — Full Impact Summary</h2>
+  <table class="impact-table">
+    <thead>
+      <tr>
+        <th>KPI / Metric</th>
+        <th>As-Is (Current)</th>
+        <th>To-Be (Optimised)</th>
+        <th>Δ Improvement</th>
+        <th>Driver</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Touch Time per Case</strong></td>
+        <td class="bad">53 min</td>
+        <td class="good">45 min</td>
+        <td class="imp">−8 min (−15.1%)</td>
+        <td>OCR + API + Parallel</td>
+      </tr>
+      <tr>
+        <td><strong>End-to-End TAT</strong></td>
+        <td class="bad">90 min</td>
+        <td class="good">75 min</td>
+        <td class="imp">−15 min (−16.7%)</td>
+        <td>Reduced queues & handoffs</td>
+      </tr>
+      <tr>
+        <td><strong>FTE Utilisation</strong></td>
+        <td class="bad">108% — Overloaded</td>
+        <td class="good">~92–100%</td>
+        <td class="imp">Normalised</td>
+        <td>Lower workload per case</td>
+      </tr>
+      <tr>
+        <td><strong>Daily Backlog</strong></td>
+        <td class="bad">38–80 cases</td>
+        <td class="good">0 cases</td>
+        <td class="imp">Fully Eliminated</td>
+        <td>Capacity > Demand</td>
+      </tr>
+      <tr>
+        <td><strong>FTE Required</strong></td>
+        <td class="bad">65 FTEs</td>
+        <td class="good">55 FTEs</td>
+        <td class="imp">10 FTE capacity freed</td>
+        <td>Automation replaces manual work</td>
+      </tr>
+      <tr>
+        <td><strong>Address Verification</strong></td>
+        <td class="bad">10 min — Manual 🔴</td>
+        <td class="good">6 min — API ✅</td>
+        <td class="imp">−4 min (−40%)</td>
+        <td>Address verification API</td>
+      </tr>
+      <tr>
+        <td><strong>Data Entry</strong></td>
+        <td class="bad">6 min — Manual</td>
+        <td class="good">4 min — OCR ✅</td>
+        <td class="imp">−2 min (−33%)</td>
+        <td>OCR automation</td>
+      </tr>
+      <tr>
+        <td><strong>PAN + Aadhaar Checks</strong></td>
+        <td class="bad">10 min — Serial</td>
+        <td class="good">5 min — Parallel ✅</td>
+        <td class="imp">−5 min (−50%)</td>
+        <td>Parallel processing</td>
+      </tr>
+      <tr>
+        <td><strong>SLA Compliance</strong></td>
+        <td class="bad">🔴 At Risk (breach likely)</td>
+        <td class="good">🟢 Stable</td>
+        <td class="imp">Risk eliminated</td>
+        <td>All three interventions</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+function showDiagram(type) {
+  document.getElementById('asis-view').classList.remove('active');
+  document.getElementById('tobe-view').classList.remove('active');
+  document.getElementById(type + '-view').classList.add('active');
+
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const tabs = document.querySelectorAll('.tab');
+  if (type === 'asis') tabs[0].classList.add('active');
+  else                 tabs[1].classList.add('active');
+}
+</script>
+</body>
+</html>
